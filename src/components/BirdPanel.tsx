@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Circle, Search, X } from "lucide-react";
+import { Check, ChevronDown, Search, X } from "lucide-react";
 import { useState } from "react";
 import { speciesData } from "../data/migrationData";
 import { speciesById } from "../lib/migration";
@@ -38,7 +38,7 @@ const countryNames = Array.from(
 
 const BirdPanel = () => {
   const [query, setQuery] = useState("");
-  const [openSection, setOpenSection] = useState<"birds" | "countries">("countries");
+  const [openSection, setOpenSection] = useState<"birds" | "countries">("birds");
   const {
     selectedSpeciesIds,
     inspectedSpeciesId,
@@ -106,7 +106,7 @@ const BirdPanel = () => {
                     >
                       <span>{country}</span>
                       <small>{count}</small>
-                      <span className="checkmark">{checked ? <Check size={15} /> : <Circle size={14} />}</span>
+                      <span className="checkmark">{checked ? <Check size={13} strokeWidth={3} /> : null}</span>
                     </button>
                   );
                 })}
@@ -161,7 +161,12 @@ const BirdPanel = () => {
                         <strong>{species.commonName}</strong>
                         <small>{species.scientificName}</small>
                       </span>
-                      <span className="checkmark">{checked ? <Check size={15} /> : <Circle size={14} />}</span>
+                      <span
+                        className="checkmark"
+                        style={checked ? { background: species.color, borderColor: species.color } : undefined}
+                      >
+                        {checked ? <Check size={13} strokeWidth={3} /> : null}
+                      </span>
                     </button>
                   );
                 })}

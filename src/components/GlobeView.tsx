@@ -68,13 +68,28 @@ const makeBirdOrb = (marker: BirdMarker) => {
   const sprite = new THREE.Sprite(material);
   const scale = marker.scale ?? (marker.resting ? 1.75 : 2.7);
   sprite.scale.set(scale, scale, 1);
-  return sprite;
+
+  // Invisible, larger sprite purely to widen the hover/tooltip hit area without
+  // changing the rendered glow size.
+  const hitMaterial = new THREE.SpriteMaterial({ transparent: true, opacity: 0, depthWrite: false, depthTest: false });
+  const hitSprite = new THREE.Sprite(hitMaterial);
+  const hitScale = scale * 3;
+  hitSprite.scale.set(hitScale, hitScale, 1);
+
+  const group = new THREE.Group();
+  group.add(hitSprite);
+  group.add(sprite);
+  return group;
 };
 
 const GlobeView = () => {
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
+  const shellRef = useRef<HTMLDivElement | null>(null);
   const [fps, setFps] = useState(0);
   const [textureId, setTextureId] = useState<(typeof globeTextures)[number]["id"]>("night");
+  const [tooltip, setTooltip] = useState<{ label: string; x: number; y: number } | null>(null);
+  const pendingClearRef = useRef(false);
+  const lastMouseRef = useRef({ x: 0, y: 0 });
   const {
     dayOfYear,
     selectedSpeciesIds,
@@ -170,8 +185,40 @@ const GlobeView = () => {
     return () => cancelAnimationFrame(frame);
   }, []);
 
+  useEffect(() => {
+    const shell = shellRef.current;
+    if (!shell) return;
+
+    const handleMouseMove = (event: MouseEvent) => {
+      const rect = shell.getBoundingClientRect();
+      lastMouseRef.current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+
+      if (pendingClearRef.current) {
+        pendingClearRef.current = false;
+        setTooltip(null);
+        return;
+      }
+
+      setTooltip((current) => (current ? { ...current, ...lastMouseRef.current } : current));
+    };
+
+    shell.addEventListener("mousemove", handleMouseMove);
+    return () => shell.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  const handleHoverChange = (label: string | null) => {
+    if (label) {
+      pendingClearRef.current = false;
+      setTooltip({ label, x: lastMouseRef.current.x, y: lastMouseRef.current.y });
+    } else {
+      // Don't hide immediately: keep the tooltip until the user genuinely moves
+      // the mouse, so marker/path animation alone doesn't dismiss it.
+      pendingClearRef.current = true;
+    }
+  };
+
   return (
-    <div className="globe-shell">
+    <div className="globe-shell" ref={shellRef}>
       <div className="globe-controls">
         <div className="fps-counter">{fps} FPS</div>
         <label className="texture-picker">
@@ -223,7 +270,8 @@ const GlobeView = () => {
         pathDashAnimateTime={() => 0}
         pathTransitionDuration={0}
         pathLabel={(path: object) => (path as GlobePath).label}
-        lineHoverPrecision={1.1}
+        lineHoverPrecision={3.5}
+        onPathHover={(path: object | null) => handleHoverChange(path ? (path as GlobePath).label : null)}
         onPathClick={(path: object) => setSelectedCorridor((path as GlobePath).corridorId)}
         pointsData={globePoints}
         pointLat={(point: object) => (point as GlobePoint).lat}
@@ -250,6 +298,7 @@ const GlobeView = () => {
         objectFacesSurfaces={false}
         objectThreeObject={(marker: object) => makeBirdOrb(marker as BirdMarker)}
         objectLabel={(marker: object) => (marker as BirdMarker).label}
+        onObjectHover={(marker: object | null) => handleHoverChange(marker ? (marker as BirdMarker).label : null)}
         labelsData={activeAnchors}
         labelLat="lat"
         labelLng="lng"
@@ -260,6 +309,11 @@ const GlobeView = () => {
         labelResolution={2}
       />
       <div className="globe-vignette" />
+      {tooltip ? (
+        <div className="globe-tooltip" style={{ left: tooltip.x, top: tooltip.y }}>
+          {tooltip.label}
+        </div>
+      ) : null}
     </div>
   );
 };

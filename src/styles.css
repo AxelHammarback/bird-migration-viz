@@ -114,6 +114,27 @@ button {
     linear-gradient(90deg, rgba(0, 0, 0, 0.22), transparent 28%, transparent 67%, rgba(0, 0, 0, 0.44));
 }
 
+.globe-tooltip {
+  position: absolute;
+  z-index: 10;
+  transform: translate(14px, -50%);
+  max-width: 240px;
+  padding: 5px 9px;
+  border: 1px solid rgba(226, 232, 240, 0.16);
+  border-radius: 6px;
+  background: rgba(3, 6, 7, 0.82);
+  backdrop-filter: blur(6px);
+  color: #eef5f6;
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.float-tooltip-kap {
+  display: none !important;
+}
+
 .eyebrow {
   margin: 0 0 7px;
   color: rgba(125, 211, 252, 0.72);
@@ -469,7 +490,31 @@ button {
 }
 
 .checkmark {
-  color: rgba(226, 232, 240, 0.72);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid rgba(226, 232, 240, 0.32);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.03);
+  color: transparent;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.species-row:hover .checkmark,
+.country-row:hover .checkmark {
+  border-color: rgba(226, 232, 240, 0.55);
+}
+
+.species-row.checked .checkmark,
+.country-row.checked .checkmark {
+  color: #0b1120;
+}
+
+.country-row.checked .checkmark {
+  border-color: #38bdf8;
+  background: #38bdf8;
 }
 
 .detail-panel {

@@ -32,8 +32,8 @@ type MigrationState = {
 };
 
 export const useMigrationStore = create<MigrationState>((set) => ({
-  selectedSpeciesIds: ["common-swift"],
-  inspectedSpeciesId: "common-swift",
+  selectedSpeciesIds: ["common-swift", "arctic-tern", "barn-swallow", "common-crane"],
+  inspectedSpeciesId: null,
   selectedCorridorId: null,
   selectedLocation: null,
   selectedCountries: [],
