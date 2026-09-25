@@ -32,7 +32,7 @@ const hasActiveMigration = (selectedSpeciesIds: string[], dayOfYear: number) =>
 
 const effectiveSpeed = (speed: PlaybackSpeed, selectedSpeciesIds: string[], dayOfYear: number) => {
   if (speed !== "auto") return speed;
-  return hasActiveMigration(selectedSpeciesIds, dayOfYear) ? 0.5 : 4;
+  return hasActiveMigration(selectedSpeciesIds, dayOfYear) ? 0.5 : 2;
 };
 
 const Timeline = () => {
@@ -79,6 +79,24 @@ const Timeline = () => {
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
   }, [isPlaying]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.code !== "Space") return;
+
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName;
+      const isEditable =
+        tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target?.isContentEditable;
+      if (isEditable) return;
+
+      event.preventDefault();
+      useMigrationStore.setState((state) => ({ isPlaying: !state.isPlaying }));
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <footer className="timeline-panel">

@@ -317,6 +317,7 @@ export const deriveGlobePaths = ({
   selectedCorridorId,
   mode,
   effectsLevel,
+  showRoutes = true,
 }: {
   dayOfYear: number;
   selectedSpeciesIds: string[];
@@ -324,6 +325,7 @@ export const deriveGlobePaths = ({
   selectedCorridorId: string | null;
   mode: VisualizationMode;
   effectsLevel: EffectsLevel;
+  showRoutes?: boolean;
 }): GlobePath[] => {
   if (mode === "presence") return [];
   const config = effectsConfig[effectsLevel];
@@ -339,7 +341,7 @@ export const deriveGlobePaths = ({
         selectedCorridorId === corridor.id || (!selectedCorridorId && inspectedSpeciesId === species.id);
       const dimmed = Boolean((inspectedSpeciesId && inspectedSpeciesId !== species.id) || (selectedCorridorId && selectedCorridorId !== corridor.id));
       const label = pathLabel(species, corridor);
-      const baselineOpacity = dimmed ? 0.14 : isInspected ? 0.58 : active ? 0.5 : 0.34;
+      const baselineOpacity = (dimmed ? 0.14 : isInspected ? 0.58 : active ? 0.5 : 0.34) * 0.7;
       const baseStroke = mode === "tracks" ? 0.36 : clamp(0.3 + corridor.share * 0.24, 0.34, 0.54);
 
       return Array.from({ length: count }, (_, strandIndex): GlobePath[] => {
@@ -362,14 +364,14 @@ export const deriveGlobePaths = ({
           sourceCorridor: corridor,
         };
 
-        if (!config.activeTrails || trailProgress === null) return [baseline];
+        if (!config.activeTrails || trailProgress === null) return showRoutes ? [baseline] : [];
 
         const routeDistance = distances[distances.length - 1] ?? 0;
         const birdDistance = routeDistance * trailProgress;
         const trailStartDistance = Math.max(0, birdDistance - trailLengthKm);
         const visibleTrailDistance = birdDistance - trailStartDistance;
 
-        if (visibleTrailDistance <= 0) return [baseline];
+        if (visibleTrailDistance <= 0) return showRoutes ? [baseline] : [];
 
         const trails = Array.from({ length: config.trailSegments }, (_, segmentIndex): GlobePath | null => {
           const segmentStart = trailStartDistance + (visibleTrailDistance * segmentIndex) / config.trailSegments;
@@ -402,7 +404,7 @@ export const deriveGlobePaths = ({
           };
         }).filter((trail): trail is GlobePath => trail !== null);
 
-        return [baseline, ...trails];
+        return showRoutes ? [baseline, ...trails] : trails;
       });
     }),
   ).flat();

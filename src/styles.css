@@ -105,6 +105,25 @@ button {
   color: #0f172a;
 }
 
+.route-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 7px;
+  border: 1px solid rgba(226, 232, 240, 0.12);
+  border-radius: 6px;
+  background: rgba(3, 6, 7, 0.48);
+  color: rgba(226, 232, 240, 0.62);
+  font-size: 0.68rem;
+  font-weight: 760;
+  cursor: pointer;
+}
+
+.route-toggle input {
+  accent-color: #38bdf8;
+  cursor: pointer;
+}
+
 .globe-vignette {
   position: absolute;
   inset: 0;
@@ -223,6 +242,7 @@ button {
 
 .bird-panel {
   width: min(370px, calc(100vw - 28px));
+  height: min(680px, calc(100vh - 150px));
   max-height: calc(100vh - 150px);
   display: flex;
   flex-direction: column;
@@ -236,10 +256,18 @@ button {
 }
 
 .accordion-section {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.035);
+}
+
+.accordion-section.open {
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 .accordion-trigger {
@@ -267,24 +295,30 @@ button {
 }
 
 .accordion-content {
-  max-height: 0;
+  display: grid;
+  grid-template-rows: 0fr;
+  flex: 1 1 0;
+  min-height: 0;
   overflow: hidden;
   opacity: 0;
   transition:
-    max-height 240ms ease,
+    grid-template-rows 240ms ease,
     opacity 180ms ease;
 }
 
 .accordion-section.open .accordion-content {
-  max-height: min(680px, calc(100vh - 190px));
+  grid-template-rows: 1fr;
   opacity: 1;
 }
 
 .accordion-inner {
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  height: 100%;
   gap: 10px;
   padding: 0 10px 10px;
+  overflow: hidden;
 }
 
 .panel-heading,
@@ -389,20 +423,16 @@ button {
 .country-list {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  min-height: 160px;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
   overflow: auto;
   padding-right: 4px;
 }
 
-.country-list {
-  min-height: 0;
-  max-height: min(420px, calc(100vh - 260px));
-}
-
 .species-row {
   display: grid;
-  grid-template-columns: 16px minmax(0, 1fr) 20px;
+  grid-template-columns: 16px minmax(0, 1fr) 20px 20px;
   align-items: center;
   gap: 9px;
   min-height: 50px;
@@ -517,7 +547,35 @@ button {
   background: #38bdf8;
 }
 
+.info-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  color: var(--text-faint);
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.info-button:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.info-button.active {
+  color: #7dd3fc;
+  background: rgba(125, 211, 252, 0.16);
+}
+
+.accordion-count {
+  color: currentColor;
+  opacity: 0.55;
+  font-weight: 700;
+}
+
 .detail-panel {
+  position: relative;
   width: min(310px, calc(100vw - 28px));
   max-width: 310px;
   display: flex;
@@ -530,6 +588,28 @@ button {
   backdrop-filter: blur(24px);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
 }
+
+.detail-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+.detail-close:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.12);
+}
+
 
 .detail-title {
   display: flex;
@@ -730,6 +810,7 @@ button {
 
   .bird-panel {
     width: 100%;
+    height: min(520px, 70vh);
     max-height: none;
     margin-left: auto;
   }

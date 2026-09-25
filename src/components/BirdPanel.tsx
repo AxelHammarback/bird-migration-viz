@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Search, X } from "lucide-react";
+import { Check, ChevronDown, Info, Search, X } from "lucide-react";
 import { useState } from "react";
 import { speciesData } from "../data/migrationData";
 import { speciesById } from "../lib/migration";
@@ -38,21 +38,32 @@ const countryNames = Array.from(
 
 const BirdPanel = () => {
   const [query, setQuery] = useState("");
-  const [openSection, setOpenSection] = useState<"birds" | "countries">("birds");
+  const [openSections, setOpenSections] = useState<{ birds: boolean; countries: boolean }>({
+    birds: true,
+    countries: false,
+  });
+  const toggleSection = (section: "birds" | "countries") =>
+    setOpenSections((current) => ({ ...current, [section]: !current[section] }));
   const {
     selectedSpeciesIds,
     inspectedSpeciesId,
+    pinnedSpeciesId,
     selectedCountries,
     toggleSpecies,
     clearSpecies,
     setSelectedSpeciesIds,
     setInspectedSpecies,
+    togglePinnedSpecies,
+    clearPinnedSpecies,
     toggleCountry,
     clearCountries,
   } = useMigrationStore();
 
   const selectedCorridor = useMigrationStore((state) => findCorridor(state.selectedCorridorId));
+  const pinnedSpecies = speciesById(pinnedSpeciesId);
   const inspectedSpecies = speciesById(inspectedSpeciesId);
+  const fallbackSpecies = pinnedSpecies ?? inspectedSpecies;
+  const isPinnedPanel = Boolean(pinnedSpecies) && !selectedCorridor;
   const speciesIdsForCountry = (country: string) =>
     speciesData
       .filter(
@@ -78,10 +89,15 @@ const BirdPanel = () => {
 
   return (
     <div className="panel-cluster">
-      <CorridorDetails corridor={selectedCorridor} fallbackSpecies={inspectedSpecies} />
+      <CorridorDetails
+        corridor={selectedCorridor}
+        fallbackSpecies={fallbackSpecies}
+        closable={isPinnedPanel}
+        onClose={clearPinnedSpecies}
+      />
       <aside className="bird-panel" onMouseLeave={() => setInspectedSpecies(null)}>
-        <section className={`accordion-section ${openSection === "countries" ? "open" : ""}`}>
-          <button className="accordion-trigger" type="button" onClick={() => setOpenSection(openSection === "countries" ? "birds" : "countries")}>
+        <section className={`accordion-section ${openSections.countries ? "open" : ""}`}>
+          <button className="accordion-trigger" type="button" onClick={() => toggleSection("countries")}>
             <span>Countries</span>
             <ChevronDown size={16} />
           </button>
@@ -115,9 +131,11 @@ const BirdPanel = () => {
           </div>
         </section>
 
-        <section className={`accordion-section ${openSection === "birds" ? "open" : ""}`}>
-          <button className="accordion-trigger" type="button" onClick={() => setOpenSection(openSection === "birds" ? "countries" : "birds")}>
-            <span>Birds</span>
+        <section className={`accordion-section ${openSections.birds ? "open" : ""}`}>
+          <button className="accordion-trigger" type="button" onClick={() => toggleSection("birds")}>
+            <span>
+              Birds <span className="accordion-count">({filteredSpecies.length})</span>
+            </span>
             <ChevronDown size={16} />
           </button>
           <div className="accordion-content">
@@ -146,6 +164,7 @@ const BirdPanel = () => {
                 {filteredSpecies.map((species) => {
                   const checked = selectedSpeciesIds.includes(species.id);
                   const inspected = inspectedSpeciesId === species.id;
+                  const pinned = pinnedSpeciesId === species.id;
 
                   return (
                     <button
@@ -160,6 +179,24 @@ const BirdPanel = () => {
                       <span className="species-name">
                         <strong>{species.commonName}</strong>
                         <small>{species.scientificName}</small>
+                      </span>
+                      <span
+                        className={`info-button ${pinned ? "active" : ""}`}
+                        role="button"
+                        tabIndex={0}
+                        title={pinned ? "Hide bird details" : "Show bird details"}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          togglePinnedSpecies(species.id);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key !== "Enter" && event.key !== " ") return;
+                          event.preventDefault();
+                          event.stopPropagation();
+                          togglePinnedSpecies(species.id);
+                        }}
+                      >
+                        <Info size={13} />
                       </span>
                       <span
                         className="checkmark"

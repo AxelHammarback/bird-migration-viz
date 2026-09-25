@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import { corridorSpecies } from "../lib/migration";
 import { windowLabel } from "../lib/calendar";
 import type { MigrationCorridor, Species } from "../types/migration";
@@ -5,6 +6,8 @@ import type { MigrationCorridor, Species } from "../types/migration";
 type CorridorDetailsProps = {
   corridor: MigrationCorridor | null;
   fallbackSpecies: Species | null;
+  closable?: boolean;
+  onClose?: () => void;
 };
 
 const shareLabel = (corridor: MigrationCorridor) => {
@@ -12,7 +15,7 @@ const shareLabel = (corridor: MigrationCorridor) => {
   return corridor.shareType === "measured" ? `${rounded}%` : `~${rounded}%`;
 };
 
-const CorridorDetails = ({ corridor, fallbackSpecies }: CorridorDetailsProps) => {
+const CorridorDetails = ({ corridor, fallbackSpecies, closable, onClose }: CorridorDetailsProps) => {
   const species = corridorSpecies(corridor) ?? fallbackSpecies;
 
   if (!species) {
@@ -21,6 +24,11 @@ const CorridorDetails = ({ corridor, fallbackSpecies }: CorridorDetailsProps) =>
 
   return (
     <section className="detail-panel">
+      {closable ? (
+        <button className="detail-close" type="button" onClick={onClose} title="Close">
+          <X size={15} />
+        </button>
+      ) : null}
       <div className="detail-title">
         <span className="species-color" style={{ background: species.color, boxShadow: `0 0 18px ${species.color}` }} />
         <h2>{species.commonName}</h2>

@@ -98,8 +98,10 @@ const GlobeView = () => {
     selectedLocation,
     mode,
     effectsLevel,
+    showRoutes,
     setSelectedCorridor,
     setEffectsLevel,
+    setShowRoutes,
   } = useMigrationStore();
 
   const paths = useMemo(
@@ -111,8 +113,9 @@ const GlobeView = () => {
         selectedCorridorId,
         mode,
         effectsLevel,
+        showRoutes,
       }),
-    [dayOfYear, effectsLevel, inspectedSpeciesId, mode, selectedCorridorId, selectedSpeciesIds],
+    [dayOfYear, effectsLevel, inspectedSpeciesId, mode, selectedCorridorId, selectedSpeciesIds, showRoutes],
   );
 
   const birdMarkers = useMemo(
@@ -241,10 +244,14 @@ const GlobeView = () => {
             ))}
           </select>
         </label>
+        <label className="route-toggle">
+          <input type="checkbox" checked={showRoutes} onChange={(event) => setShowRoutes(event.target.checked)} />
+          <span>Show migration route</span>
+        </label>
       </div>
       <Globe
         ref={globeRef as never}
-        globeOffset={[-130, 0]}
+        globeOffset={[-130, -90]}
         backgroundColor="rgba(0,0,0,0)"
         globeImageUrl={selectedTexture.url}
         bumpImageUrl="https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png"
@@ -310,9 +317,11 @@ const GlobeView = () => {
       />
       <div className="globe-vignette" />
       {tooltip ? (
-        <div className="globe-tooltip" style={{ left: tooltip.x, top: tooltip.y }}>
-          {tooltip.label}
-        </div>
+        <div
+          className="globe-tooltip"
+          style={{ left: tooltip.x, top: tooltip.y }}
+          dangerouslySetInnerHTML={{ __html: tooltip.label }}
+        />
       ) : null}
     </div>
   );

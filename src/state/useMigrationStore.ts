@@ -7,11 +7,13 @@ export type PlaybackSpeed = "auto" | 0.5 | 1 | 2 | 4;
 type MigrationState = {
   selectedSpeciesIds: string[];
   inspectedSpeciesId: string | null;
+  pinnedSpeciesId: string | null;
   selectedCorridorId: string | null;
   selectedLocation: string | null;
   selectedCountries: string[];
   mode: VisualizationMode;
   effectsLevel: EffectsLevel;
+  showRoutes: boolean;
   dayOfYear: number;
   isPlaying: boolean;
   speed: PlaybackSpeed;
@@ -20,12 +22,15 @@ type MigrationState = {
   selectAllSpecies: () => void;
   clearSpecies: () => void;
   setInspectedSpecies: (speciesId: string | null) => void;
+  togglePinnedSpecies: (speciesId: string) => void;
+  clearPinnedSpecies: () => void;
   setSelectedCorridor: (corridorId: string | null) => void;
   setSelectedLocation: (location: string | null) => void;
   toggleCountry: (country: string) => void;
   clearCountries: () => void;
   setMode: (mode: VisualizationMode) => void;
   setEffectsLevel: (effectsLevel: EffectsLevel) => void;
+  setShowRoutes: (showRoutes: boolean) => void;
   setDayOfYear: (day: number) => void;
   setIsPlaying: (isPlaying: boolean) => void;
   setSpeed: (speed: PlaybackSpeed) => void;
@@ -34,11 +39,13 @@ type MigrationState = {
 export const useMigrationStore = create<MigrationState>((set) => ({
   selectedSpeciesIds: ["common-swift", "arctic-tern", "barn-swallow", "common-crane"],
   inspectedSpeciesId: null,
+  pinnedSpeciesId: null,
   selectedCorridorId: null,
   selectedLocation: null,
   selectedCountries: [],
   mode: "flow",
   effectsLevel: "full",
+  showRoutes: true,
   dayOfYear: 252,
   isPlaying: false,
   speed: "auto",
@@ -75,6 +82,9 @@ export const useMigrationStore = create<MigrationState>((set) => ({
       selectedCorridorId: null,
     }),
   setInspectedSpecies: (speciesId) => set({ inspectedSpeciesId: speciesId }),
+  togglePinnedSpecies: (speciesId) =>
+    set((state) => ({ pinnedSpeciesId: state.pinnedSpeciesId === speciesId ? null : speciesId })),
+  clearPinnedSpecies: () => set({ pinnedSpeciesId: null }),
   setSelectedCorridor: (corridorId) => set({ selectedCorridorId: corridorId }),
   setSelectedLocation: (location) => set({ selectedLocation: location }),
   toggleCountry: (country) =>
@@ -105,6 +115,7 @@ export const useMigrationStore = create<MigrationState>((set) => ({
   clearCountries: () => set({ selectedCountries: [] }),
   setMode: (mode) => set({ mode }),
   setEffectsLevel: (effectsLevel) => set({ effectsLevel }),
+  setShowRoutes: (showRoutes) => set({ showRoutes }),
   setDayOfYear: (day) => set({ dayOfYear: Math.min(365, Math.max(1, day)) }),
   setIsPlaying: (isPlaying) => set({ isPlaying }),
   setSpeed: (speed) => set({ speed }),
