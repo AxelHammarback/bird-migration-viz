@@ -246,6 +246,20 @@ button {
 }
 
 .accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 240ms ease,
+    opacity 180ms ease;
+}
+
+.accordion-section.open .accordion-content {
+  max-height: min(680px, calc(100vh - 190px));
+  opacity: 1;
+}
+
+.accordion-inner {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -337,6 +351,17 @@ button {
   border-color: var(--line);
   background: rgba(255, 255, 255, 0.035);
   font-size: 0.82rem;
+}
+
+.panel-actions .filter-chip {
+  gap: 5px;
+  min-height: 28px;
+  padding: 0 8px 0 10px;
+  border-color: rgba(125, 211, 252, 0.26);
+  border-radius: 999px;
+  background: rgba(125, 211, 252, 0.11);
+  color: rgba(224, 242, 254, 0.92);
+  font-size: 0.74rem;
 }
 
 .species-list,
@@ -448,6 +473,8 @@ button {
 }
 
 .detail-panel {
+  width: min(310px, calc(100vw - 28px));
+  max-width: 310px;
   display: flex;
   flex-direction: column;
   gap: 10px;

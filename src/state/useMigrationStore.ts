@@ -16,6 +16,7 @@ type MigrationState = {
   isPlaying: boolean;
   speed: PlaybackSpeed;
   toggleSpecies: (speciesId: string) => void;
+  setSelectedSpeciesIds: (speciesIds: string[]) => void;
   selectAllSpecies: () => void;
   clearSpecies: () => void;
   setInspectedSpecies: (speciesId: string | null) => void;
@@ -54,6 +55,12 @@ export const useMigrationStore = create<MigrationState>((set) => ({
         selectedCorridorId:
           isSelected && selectedSpeciesIds.length === 0 ? null : state.selectedCorridorId,
       };
+    }),
+  setSelectedSpeciesIds: (selectedSpeciesIds) =>
+    set({
+      selectedSpeciesIds,
+      inspectedSpeciesId: selectedSpeciesIds.length === 1 ? selectedSpeciesIds[0] : null,
+      selectedCorridorId: null,
     }),
   selectAllSpecies: () =>
     set({
